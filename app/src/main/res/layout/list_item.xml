@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="start"
+        android:textSize="40sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/phoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="start"
+        android:textSize="20sp" />
+
+</LinearLayout>
