@@ -23,6 +23,7 @@ import kotlinx.android.synthetic.main.list_item.view.*
 
 
 const val PERMISSION_CODE = 1111
+
 data class Contact(val name: String, val phoneNumber: String)
 
 class ContactViewHolder(val root: View) : RecyclerView.ViewHolder(root) {
@@ -66,25 +67,34 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
-    private lateinit var data: List<Contact>
+    private var data: MutableList<Contact> = mutableListOf()
     private lateinit var permission: ContactsPermission
 
     private fun Context.fetchAllContacts(): List<Contact> {
-        contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null)
+        contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        )
             .use { cursor ->
                 if (cursor == null) return emptyList()
                 val builder = ArrayList<Contact>()
                 while (cursor.moveToNext()) {
                     val name =
-                        cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)) ?: "N/A"
+                        cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                            ?: "N/A"
                     val phoneNumber =
-                        cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)) ?: "N/A"
+                        cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                            ?: "N/A"
 
                     builder.add(Contact(name, phoneNumber))
                 }
                 return builder
             }
     }
+
     class ContactsPermission {
         fun checkPermission(context: Context): Boolean {
             return (ContextCompat.checkSelfPermission(
@@ -109,10 +119,6 @@ class MainActivity : AppCompatActivity() {
         if (permission.checkPermission(this@MainActivity)) {
             permission.requestPermission(this@MainActivity)
         }
-        data = if (!permission.checkPermission(this@MainActivity)){
-            fetchAllContacts()
-        } else
-            listOf()
         Toast.makeText(this, "Find ${data.size} contacts", Toast.LENGTH_SHORT).show()
         setContentView(R.layout.activity_main)
         viewManager = LinearLayoutManager(this@MainActivity)
@@ -124,6 +130,7 @@ class MainActivity : AppCompatActivity() {
                 )
             )
         }
+        pushData()
         recyclerView = findViewById<RecyclerView>(R.id.my_recycler_view).apply {
             setHasFixedSize(true)
             layoutManager = viewManager
@@ -131,5 +138,26 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+    fun pushData() {
+        data.addAll(
+            if (!permission.checkPermission(this@MainActivity)) {
+                fetchAllContacts()
+            } else
+                listOf()
+        )
+        viewAdapter.notifyDataSetChanged()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        pushData()
+
+    }
+
 
 }
