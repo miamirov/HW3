@@ -119,7 +119,6 @@ class MainActivity : AppCompatActivity() {
         if (permission.checkPermission(this@MainActivity)) {
             permission.requestPermission(this@MainActivity)
         }
-        Toast.makeText(this, "Find ${data.size} contacts", Toast.LENGTH_SHORT).show()
         setContentView(R.layout.activity_main)
         viewManager = LinearLayoutManager(this@MainActivity)
         viewAdapter = ContactAdapter(data) {
@@ -140,13 +139,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun pushData() {
+        data.clear()
         data.addAll(
             if (!permission.checkPermission(this@MainActivity)) {
+
                 fetchAllContacts()
             } else
                 listOf()
         )
         viewAdapter.notifyDataSetChanged()
+        val contactsNum = resources.getQuantityString(R.plurals.numberOfContacts, data.size, data.size)
+        Toast.makeText(this, "Found ${contactsNum}", Toast.LENGTH_SHORT).show()
     }
 
     override fun onRequestPermissionsResult(
@@ -157,6 +160,11 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         pushData()
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        pushData()
     }
 
 

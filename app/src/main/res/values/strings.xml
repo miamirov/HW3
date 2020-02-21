@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">HW3</string>
     <string name="action_settings">Settings</string>
+    <plurals name="numberOfContacts">
+        <item quantity="one">%d contact.</item>
+        <item quantity="other">%d contacts.</item>
+    </plurals>
 </resources>
